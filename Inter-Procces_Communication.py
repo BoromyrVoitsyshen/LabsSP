@@ -36,6 +36,8 @@ def main():
     f_result = None
     g_result = None
 
+    continue_without_prompt = False
+
     while True:
         if f_parent_recv.poll(0.5) and f_result is None:
             try:
@@ -64,7 +66,29 @@ def main():
             break
 
         print("Still waiting...")
-        time.sleep(1)
+        for _ in range(10):
+            time.sleep(1)
+            if f_result is not None and g_result is not None:
+                break
+        else:
+            if not continue_without_prompt:
+                print("\n1) Продовжити обчислення")
+                print("2) Припинити")
+                print("3) Продовжити, не перепитуючи більше")
+                answer = input("Ваш вибір (1/2/3): ").strip()
+
+                if answer == "2":
+                    print("Програма зупинена.")
+                    break
+                elif answer == "3":
+                    continue_without_prompt = True
+                    print("Продовжуємо без подальших запитів.")
+                else:
+                    print("Продовжуємо обчислення...")
+
+        if f_result is not None and g_result is not None:
+            print("Результати готові!")
+            break
 
     f_proc.terminate()
     g_proc.terminate()
